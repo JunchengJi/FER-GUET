@@ -1,0 +1,9 @@
+/models/cnn_model_gpu.pkl
+/models/cnn_model.pkl
+/models/model_net.pkl
+/face_images/train_set/
+/face_images/verify_set/
+/dataset/
+/output/emotion_data/
+/UI_MainWindow.ui
+/.idea/

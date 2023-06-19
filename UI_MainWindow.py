@@ -15,9 +15,9 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPixmap, QIcon, QImage, QPainter, QBrush, QColor
 
 import SettingDialog
+import detect
 import setting
 from VideoThread import VideoThread
-from detect import face_detection, detect_emotion
 
 
 class Ui_MainWindow(QtWidgets.QMainWindow):
@@ -146,17 +146,21 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         # Convert the frame to RGB format and create a Qt image from it
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        faces = face_detection.detectMultiScale(gray, 1.3, 5)
+        faces = detect.face_detection.detectMultiScale(gray, 1.3, 5)
         # 对于所有发现的人脸
         emotion = None
+        get_img_time = None
+        name = None
+        confidence = None
         for (x, y, w, h) in faces:
+            get_img_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             # 在脸周围画一个矩形框，(255,0,0)是颜色，2是线宽
             cv2.rectangle(frame, (x, y), (x + w, y + h), (84, 255, 159), 2)
 
             # 获取人脸图像
             face = gray[y:y + h, x:x + w]
 
-            emotion_arg = detect_emotion(face)
+            emotion_arg = detect.detect_emotion(face)
             emotion = setting.emotion_labels[int(emotion_arg)]
             setting.emotion_window.append(emotion)
 
@@ -166,9 +170,10 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
             # 获得出现次数最多的分类
             emotion_mode = mode(setting.emotion_window)
-
+            name, confidence = detect.detect_face(face)
+            text_label = name + confidence + emotion_mode
             # 在矩形框上部，输出分类文字
-            cv2.putText(frame, emotion_mode, (x, y - 30), setting.font, .7, (0, 0, 255), 1, cv2.LINE_AA)
+            cv2.putText(frame, text_label, (x, y - 30), setting.font, .7, (0, 0, 255), 1, cv2.LINE_AA)
 
         image = QImage(frame, frame.shape[1], frame.shape[0], QImage.Format_RGB888)
         rounded_img = rounded_image(image, 10)
@@ -180,19 +185,19 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             os.mkdir(setting.emotion_data_path)
         else:
             if emotion:
-                write_to_csv(emotion, datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+                write_to_csv(emotion, get_img_time, name, confidence)
 
 
-def write_to_csv(emotion, time):
+def write_to_csv(emotion, time, name, confidence):
     with open(setting.emotion_data_path + datetime.datetime.now().strftime('%Y-%m-%d') + '.csv', mode='a',
               newline='') as csvfile:
-        fieldnames = ['emotion', 'time']
+        fieldnames = ['emotion', 'time', 'name', 'confidence']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         # 如果文件为空，写入表头
         if csvfile.tell() == 0:
             writer.writeheader()
         # 写入当前表情和时间
-        writer.writerow({'emotion': emotion, 'time': time})
+        writer.writerow({'emotion': emotion, 'time': time, 'name': name, 'confidence': confidence})
 
 
 def rounded_image(image, radius):

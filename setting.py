@@ -7,7 +7,7 @@ emotion_data_path = output_path + 'emotion_data/'
 detection_model_path = 'models/haarcascade_frontalface_default.xml'
 
 # 表情模型
-classification_model_path = 'models/cnn_model_gpu.pkl'
+classification_model_path = 'models/cnn_model_619_2.pkl'
 
 # resource
 background_image = 'resource/star_eyes.png'

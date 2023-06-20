@@ -151,7 +151,6 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         emotion = None
         get_img_time = None
         name = None
-        confidence = None
         for (x, y, w, h) in faces:
             get_img_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             # 在脸周围画一个矩形框，(255,0,0)是颜色，2是线宽
@@ -170,8 +169,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
             # 获得出现次数最多的分类
             emotion_mode = mode(setting.emotion_window)
-            name, confidence = detect.detect_face(face)
-            text_label = name + confidence + emotion_mode
+            name = detect.detect_face(face)
+            text_label = name + emotion_mode
             # 在矩形框上部，输出分类文字
             cv2.putText(frame, text_label, (x, y - 30), setting.font, .7, (0, 0, 255), 1, cv2.LINE_AA)
 
@@ -185,10 +184,10 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             os.mkdir(setting.emotion_data_path)
         else:
             if emotion:
-                write_to_csv(emotion, get_img_time, name, confidence)
+                write_to_csv(emotion, get_img_time, name)
 
 
-def write_to_csv(emotion, time, name, confidence):
+def write_to_csv(emotion, time, name):
     with open(setting.emotion_data_path + datetime.datetime.now().strftime('%Y-%m-%d') + '.csv', mode='a',
               newline='') as csvfile:
         fieldnames = ['emotion', 'time', 'name', 'confidence']
@@ -197,7 +196,7 @@ def write_to_csv(emotion, time, name, confidence):
         if csvfile.tell() == 0:
             writer.writeheader()
         # 写入当前表情和时间
-        writer.writerow({'emotion': emotion, 'time': time, 'name': name, 'confidence': confidence})
+        writer.writerow({'emotion': emotion, 'time': time, 'name': name})
 
 
 def rounded_image(image, radius):

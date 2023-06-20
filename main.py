@@ -1,6 +1,4 @@
 import sys
-from FaceCNN import FaceCNN  # 不可清除
-
 import UI_MainWindow
 
 from PyQt5.QtWidgets import QApplication

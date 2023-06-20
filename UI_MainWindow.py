@@ -170,9 +170,9 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             # 获得出现次数最多的分类
             emotion_mode = mode(setting.emotion_window)
             name = detect.detect_face(face)
-            text_label = name + emotion_mode
+            text_label = name + '__' + emotion_mode
             # 在矩形框上部，输出分类文字
-            cv2.putText(frame, text_label, (x, y - 30), setting.font, .7, (0, 0, 255), 1, cv2.LINE_AA)
+            cv2.putText(frame, text_label, (x, y - 30), setting.font, .7, (255, 140, 0), 1, cv2.LINE_AA)
 
         image = QImage(frame, frame.shape[1], frame.shape[0], QImage.Format_RGB888)
         rounded_img = rounded_image(image, 10)

@@ -17,10 +17,10 @@ DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 # 加载表情resnet模型
 model_path = setting.emotion_model
-model = models.resnet18()
-model.fc = nn.Linear(model.fc.in_features, 7)
-model.load_state_dict(torch.load(model_path))
-model.eval()
+emotion_model = models.resnet18()
+emotion_model.fc = nn.Linear(emotion_model.fc.in_features, 7)
+emotion_model.load_state_dict(torch.load(model_path))
+emotion_model.eval()
 
 # 人脸识别相关
 data_dir = 'dataset/face_dataset'
@@ -69,7 +69,7 @@ def resnet_detect_emotion(image_path):
     ])
     image_tensor = transform(image).unsqueeze(0)
     # 进行预测
-    outputs = model(image_tensor)
+    outputs = emotion_model(image_tensor)
     _, predicted = torch.max(outputs, 1)
     return predicted.item()
 

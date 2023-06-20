@@ -1,15 +1,16 @@
+import copy
+import os
+import time
+import warnings
+
 import torch
-import torchvision
-from torchvision import datasets, transforms
 import torch.nn as nn
 import torch.optim as optim
+import torchvision
 from torch.optim import lr_scheduler
-import numpy as np
-import matplotlib.pyplot as plt
-import time
-import os
-import copy
-import warnings
+from torch.utils.data import DataLoader
+from torchvision import datasets, transforms
+
 warnings.filterwarnings('ignore')  # 禁止显示所有警告
 # 设置数据路径和转换
 data_dir = '../dataset/face_dataset/'
@@ -32,8 +33,8 @@ data_transforms = {
 image_datasets = {x: datasets.ImageFolder(os.path.join(data_dir, x),
                                           data_transforms[x])
                   for x in ['train', 'val']}
-dataloaders = {x: torch.utils.data.DataLoader(image_datasets[x], batch_size=4,
-                                              shuffle=True, num_workers=4)
+dataloaders = {x: DataLoader(image_datasets[x], batch_size=4,
+                             shuffle=True, num_workers=4)
                for x in ['train', 'val']}
 dataset_sizes = {x: len(image_datasets[x]) for x in ['train', 'val']}
 class_names = image_datasets['train'].classes
@@ -120,6 +121,7 @@ def train_model(model, criterion, optimizer, scheduler, num_epochs=25):
     # 加载最佳模型权重
     model.load_state_dict(best_model_wts)
     return model
+
 
 if __name__ == '__main__':
     # 开始训练

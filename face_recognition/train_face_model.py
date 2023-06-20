@@ -45,6 +45,7 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 model = torchvision.models.resnet18(pretrained=True)
 num_ftrs = model.fc.in_features
 model.fc = nn.Linear(num_ftrs, len(class_names))
+model.softmax = nn.Softmax(dim=1)
 model = model.to(device)
 
 # 定义损失函数和优化器

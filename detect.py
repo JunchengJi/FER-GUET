@@ -1,12 +1,12 @@
 import os
 
 import cv2
-import numpy as np
 import torch
 import torchvision
 from torch import nn
 from torchvision import models, transforms, datasets
 from PIL import Image
+import torch.nn.functional as F
 
 import setting
 
@@ -21,32 +21,6 @@ emotion_model = models.resnet18()
 emotion_model.fc = nn.Linear(emotion_model.fc.in_features, 7)
 emotion_model.load_state_dict(torch.load(model_path))
 emotion_model.eval()
-
-# 人脸识别相关
-data_dir = 'dataset/face_dataset'
-data_transforms = {
-    'train': transforms.Compose([
-        transforms.RandomResizedCrop(224),
-        transforms.RandomHorizontalFlip(),
-        transforms.ToTensor(),
-        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
-    ]),
-    'val': transforms.Compose([
-        transforms.Resize(256),
-        transforms.CenterCrop(224),
-        transforms.ToTensor(),
-        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
-    ]),
-}
-image_datasets = {x: datasets.ImageFolder(os.path.join(data_dir, x),
-                                          data_transforms[x])
-                  for x in ['train', 'val']}
-class_names = image_datasets['train'].classes
-# 加载模型
-model = torchvision.models.resnet18()
-num_ftrs = model.fc.in_features
-model.fc = nn.Linear(num_ftrs, len(class_names))
-model.load_state_dict(torch.load('face_recognition/resnet18_face_recognition_self.pth'))
 
 # 人脸识别相关
 data_dir = 'dataset/face_dataset'
@@ -116,6 +90,15 @@ def detect_face(image_path):
     model.eval()
     with torch.no_grad():
         outputs = model(image_tensor)
-        _, preds = torch.max(outputs, 1)
-    predicted_class = class_names[preds[0]]
+        outputs = F.softmax(outputs, dim=1)
+        print('outputs:', outputs)
+        score, predicted = torch.max(outputs, 1)
+        print("score: ", score)
+        print("predicted: ", predicted)
+
+    if score.double() > 1/len(class_names):
+        predicted_class = class_names[predicted[0]]
+    else:
+        predicted_class = 'UnKnown'
+    print(predicted_class)
     return predicted_class

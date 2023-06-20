@@ -158,9 +158,9 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             cv2.rectangle(frame, (x, y), (x + w, y + h), (84, 255, 159), 2)
 
             # 获取人脸图像
-            face = gray[y:y + h, x:x + w]
+            face = frame[y:y + h, x:x + w]
 
-            emotion_arg = detect.detect_emotion(face)
+            emotion_arg = detect.resnet_detect_emotion(face)
             emotion = setting.emotion_labels[int(emotion_arg)]
             setting.emotion_window.append(emotion)
 

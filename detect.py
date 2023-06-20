@@ -3,6 +3,9 @@ import os
 import cv2
 import numpy as np
 import torch
+from torch import nn
+from torchvision import models, transforms
+from PIL import Image
 
 import setting
 
@@ -17,6 +20,15 @@ DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 # 加载训练好的模型
 face_recognizer = cv2.face.LBPHFaceRecognizer_create()
 face_recognizer.read('trainer.yml')
+
+# 加载resnet模型
+model_path = "models/resnet_model.pt"
+model = models.resnet18()
+model.fc = nn.Linear(model.fc.in_features, 7)
+model.load_state_dict(torch.load(model_path))
+# model_path = "path/to/the/model.pth"
+# net = torch.load(model_path)
+model.eval()
 
 
 def preprocess_input(images):
@@ -49,9 +61,27 @@ def detect_emotion(face):
     return emotion_arg
 
 
+def resnet_detect_emotion(image_path):
+    # 加载图片并预处理
+    image = Image.fromarray(image_path)
+    transform = transforms.Compose([
+        transforms.RandomResizedCrop(224),
+        transforms.RandomHorizontalFlip(),
+        transforms.ToTensor(),
+        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+    ])
+    image_tensor = transform(image).unsqueeze(0)
+    # 进行预测
+    outputs = model(image_tensor)
+    _, predicted = torch.max(outputs, 1)
+    print("Predicted class:", predicted.item())
+    return predicted.item()
+
+
 def detect_face(face):
+    gray = cv2.cvtColor(face, cv2.COLOR_BGR2GRAY)
     # 检测人脸
-    label, confidence = face_recognizer.predict(face)
+    label, confidence = face_recognizer.predict(gray)
     # 根据置信度判断是否识别成功
     if confidence < 120:
         name = subjects[label]

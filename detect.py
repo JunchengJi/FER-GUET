@@ -42,10 +42,11 @@ image_datasets = {x: datasets.ImageFolder(os.path.join(data_dir, x),
                                           data_transforms[x])
                   for x in ['train', 'val']}
 class_names = image_datasets['train'].classes
+class_sum = len(class_names)
 # 加载模型
 model = torchvision.models.resnet18()
 num_ftrs = model.fc.in_features
-model.fc = nn.Linear(num_ftrs, len(class_names))
+model.fc = nn.Linear(num_ftrs, class_sum)
 model.load_state_dict(torch.load('face_recognition/resnet18_face_recognition_self.pth'))
 
 
@@ -96,7 +97,7 @@ def detect_face(image_path):
         print("score: ", score)
         print("predicted: ", predicted)
 
-    if score.double() > 1/len(class_names):
+    if score.double() > 1.0/class_sum:
         predicted_class = class_names[predicted[0]]
     else:
         predicted_class = 'UnKnown'

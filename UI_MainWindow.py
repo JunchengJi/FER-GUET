@@ -10,9 +10,11 @@ import datetime
 import os
 from statistics import mode
 import cv2
+import numpy as np
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPixmap, QIcon, QImage, QPainter, QBrush, QColor
+from PyQt5.QtWidgets import QFileDialog
 
 import SettingDialog
 import detect
@@ -29,7 +31,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.stop_icon = None
         self.start_icon = None
         self.video_default_bg = None
-        self.btn_setting = None
+        self.btn_select_image = None
         self.btn_stop = None
         self.btn_start = None
         self.horizontalLayout = None
@@ -70,9 +72,9 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.btn_stop.setObjectName("btn_stop")
         self.horizontalLayout.addWidget(self.btn_stop)
         # 设置按键
-        self.btn_setting = QtWidgets.QPushButton(self.verticalLayoutWidget)
-        self.btn_setting.setObjectName("btn_setting")
-        self.horizontalLayout.addWidget(self.btn_setting)
+        self.btn_select_image = QtWidgets.QPushButton(self.verticalLayoutWidget)
+        self.btn_select_image.setObjectName("btn_setting")
+        self.horizontalLayout.addWidget(self.btn_select_image)
 
         self.verticalLayout.addLayout(self.horizontalLayout)
         self.setCentralWidget(self.centralwidget)
@@ -100,18 +102,18 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.btn_stop.setIconSize(self.btn_stop.size())
         self.btn_stop.setEnabled(False)
 
-        self.setting_icon = QIcon(setting.setting_icon)
-        self.btn_setting.setIcon(self.setting_icon)
-        self.btn_setting.setIconSize(self.btn_setting.size())
+        self.setting_icon = QIcon(setting.select_image_button)
+        self.btn_select_image.setIcon(self.setting_icon)
+        self.btn_select_image.setIconSize(self.btn_select_image.size())
 
         # Connect the start and stop buttons to their handlers
         self.btn_start.clicked.connect(self.start_video)
         self.btn_stop.clicked.connect(self.stop_video)
-        self.btn_setting.clicked.connect(self.go_to_setting)
+        self.btn_select_image.clicked.connect(self.select_file)
 
     def start_video(self):
         self.btn_start.setEnabled(False)
-        self.btn_setting.setEnabled(False)
+        self.btn_select_image.setEnabled(False)
         self.video_thread = VideoThread()
         self.video_thread.change_pixmap_signal.connect(self.update_video_label)
         self.video_thread.start()
@@ -125,7 +127,16 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         # self.image = QPixmap('resource/resource.png')
         # self.video_label.setPixmap(self.image)
         self.btn_start.setEnabled(True)
-        self.btn_setting.setEnabled(True)
+        self.btn_select_image.setEnabled(True)
+
+    def select_file(self):
+        image = QFileDialog.getOpenFileName(self, 'Open file', 'D:/test_image', 'Image files (*.jpg *.png)')
+        if image[0]:
+            # 读取图像
+            img = cv2.imread(image[0])
+            # 将图像转换为NumPy数组
+            img_array = np.array(img)
+            self.update_video_label(img_array)
 
     def go_to_setting(self):
         # self.newWindow = NewWindow()
@@ -141,7 +152,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
     def update_video_label(self, frame):
         """Updates the video label with a new frame"""
         # Convert the frame to RGB format and create a Qt image from it
-        frame = frame[:, ::-1, :]  # 水平翻转，符合自拍习惯
+        # frame = frame[:, ::-1, :]  # 水平翻转，符合自拍习惯
         frame = frame.copy()
         # Convert the frame to RGB format and create a Qt image from it
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)

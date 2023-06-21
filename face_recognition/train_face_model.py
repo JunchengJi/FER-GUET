@@ -126,6 +126,6 @@ def train_model(model, criterion, optimizer, scheduler, num_epochs=25):
 
 if __name__ == '__main__':
     # 开始训练
-    model_ft = train_model(model, criterion, optimizer, exp_lr_scheduler, num_epochs=5)
+    model_ft = train_model(model, criterion, optimizer, exp_lr_scheduler, num_epochs=20)
     # 保存模型
     torch.save(model_ft.state_dict(), 'resnet18_face_recognition_self.pth')

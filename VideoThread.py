@@ -19,6 +19,7 @@ class VideoThread(QThread):
             if ret:
                 self.cnt += 1
                 if self.cnt % self.signal_interval == 0:
+                    frame = frame[:, ::-1, :]  # 水平翻转，符合自拍习惯
                     self.change_pixmap_signal.emit(frame)
                     self.cnt = 0
 

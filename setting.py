@@ -13,7 +13,7 @@ emotion_model = 'models/resnet_model.pt'
 background_image = 'resource/star_eyes.png'
 start_icon = 'resource/start.png'
 stop_icon = 'resource/stop.png'
-setting_icon = 'resource/setting.png'
+select_image_button = 'resource/button-image.png'
 main_icon = 'resource/main_icon.png'
 
 font = cv2.FONT_HERSHEY_SIMPLEX

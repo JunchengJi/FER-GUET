@@ -44,10 +44,10 @@ image_datasets = {x: datasets.ImageFolder(os.path.join(data_dir, x),
 class_names = image_datasets['train'].classes
 class_sum = len(class_names)
 # 加载模型
-model = torchvision.models.resnet18()
-num_ftrs = model.fc.in_features
-model.fc = nn.Linear(num_ftrs, class_sum)
-model.load_state_dict(torch.load('face_recognition/resnet18_face_recognition_self.pth'))
+face_recognation = torchvision.models.resnet18()
+num_ftrs = face_recognation.fc.in_features
+face_recognation.fc = nn.Linear(num_ftrs, class_sum)
+face_recognation.load_state_dict(torch.load('face_recognition/resnet18_face_recognition_self.pth'))
 
 
 def preprocess_input(images):
@@ -88,18 +88,18 @@ def detect_face(image_path):
     image_tensor = image_tensor.unsqueeze(0)  # 添加 batch dimension
 
     # 使用模型进行预测
-    model.eval()
+    face_recognation.eval()
     with torch.no_grad():
-        outputs = model(image_tensor)
+        outputs = face_recognation(image_tensor)
         outputs = F.softmax(outputs, dim=1)
-        print('outputs:', outputs)
+        # print('outputs:', outputs)
         score, predicted = torch.max(outputs, 1)
-        print("score: ", score)
-        print("predicted: ", predicted)
+        # print("score: ", score)
+        # print("predicted: ", predicted)
 
-    if score.double() > 1.0/class_sum:
+    if score.double() > 0.75:
         predicted_class = class_names[predicted[0]]
     else:
         predicted_class = 'UnKnown'
-    print(predicted_class)
+    # print(predicted_class)
     return predicted_class

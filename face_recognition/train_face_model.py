@@ -16,10 +16,10 @@ warnings.filterwarnings('ignore')  # 禁止显示所有警告
 data_dir = '../dataset/face_dataset/'
 data_transforms = {
     'train': transforms.Compose([
-        transforms.RandomResizedCrop(224),
+        transforms.RandomResizedCrop(224),  # 裁剪调整为 224x224 像素
         transforms.RandomHorizontalFlip(),
-        transforms.ToTensor(),
-        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+        transforms.ToTensor(),  # 将图像转换为张量
+        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])  # 归一化
     ]),
     'val': transforms.Compose([
         transforms.Resize(256),
@@ -41,24 +41,10 @@ class_names = image_datasets['train'].classes
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 # print(device)
-# 定义模型
-model = torchvision.models.resnet18(pretrained=True)
-num_ftrs = model.fc.in_features
-model.fc = nn.Linear(num_ftrs, len(class_names))
-model.softmax = nn.Softmax(dim=1)
-model = model.to(device)
-
-# 定义损失函数和优化器
-criterion = nn.CrossEntropyLoss()
-
-optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
-
-# 定义学习率调整策略
-exp_lr_scheduler = lr_scheduler.StepLR(optimizer, step_size=7, gamma=0.1)
 
 
 # 训练模型
-def train_model(model, criterion, optimizer, scheduler, num_epochs=25):
+def train_model(model, criterion, optimizer, scheduler, num_epochs):
     since = time.time()
 
     best_model_wts = copy.deepcopy(model.state_dict())
@@ -125,6 +111,21 @@ def train_model(model, criterion, optimizer, scheduler, num_epochs=25):
 
 
 if __name__ == '__main__':
+    # 定义模型
+    model = torchvision.models.resnet18(pretrained=True)
+    num_ftrs = model.fc.in_features
+    model.fc = nn.Linear(num_ftrs, len(class_names))
+    model.softmax = nn.Softmax(dim=1)  # 预测概率值和为1
+    model = model.to(device)
+
+    # 定义损失函数和优化器
+    criterion = nn.CrossEntropyLoss()
+
+    optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
+
+    # 定义学习率调整策略
+    exp_lr_scheduler = lr_scheduler.StepLR(optimizer, step_size=7, gamma=0.1)
+
     # 开始训练
     model_ft = train_model(model, criterion, optimizer, exp_lr_scheduler, num_epochs=20)
     # 保存模型

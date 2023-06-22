@@ -71,7 +71,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.btn_stop = QtWidgets.QPushButton(self.verticalLayoutWidget)
         self.btn_stop.setObjectName("btn_stop")
         self.horizontalLayout.addWidget(self.btn_stop)
-        # 设置按键
+        # 图片选择按键
         self.btn_select_image = QtWidgets.QPushButton(self.verticalLayoutWidget)
         self.btn_select_image.setObjectName("btn_setting")
         self.horizontalLayout.addWidget(self.btn_select_image)
@@ -106,7 +106,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.btn_select_image.setIcon(self.setting_icon)
         self.btn_select_image.setIconSize(self.btn_select_image.size())
 
-        # Connect the start and stop buttons to their handlers
+        # 点击信号绑定
         self.btn_start.clicked.connect(self.start_video)
         self.btn_stop.clicked.connect(self.stop_video)
         self.btn_select_image.clicked.connect(self.select_file)
@@ -138,13 +138,6 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             img_array = np.array(img)
             self.update_video_label(img_array)
 
-    def go_to_setting(self):
-        # self.newWindow = NewWindow()
-        self.setting_dialog = SettingDialog.SettingDialog()
-        self.setting_dialog.closed.connect(self.showMain)
-        self.setting_dialog.show()
-        self.close()
-
     def showMain(self, mainWindow):
         self.show()
         mainWindow.close()
@@ -175,7 +168,6 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             setting.emotion_window.append(emotion)
 
             if len(setting.emotion_window) >= setting.frame_window:
-                # Open a file for writing
                 setting.emotion_window.pop(0)
 
             # 获得出现次数最多的分类
@@ -193,6 +185,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         # 输出日志
         if not os.path.exists(setting.emotion_data_path):
             os.mkdir(setting.emotion_data_path)
+            if emotion:
+                write_to_csv(emotion, get_img_time, name)
         else:
             if emotion:
                 write_to_csv(emotion, get_img_time, name)

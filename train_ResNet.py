@@ -84,9 +84,9 @@ if __name__ == '__main__':
     cri = nn.CrossEntropyLoss()
     opt = optim.SGD(resnet.parameters(), lr=0.001, momentum=0.9)
     # 定义学习率调整策略
-    exp_lr_scheduler = lr_scheduler.StepLR(opt, step_size=7, gamma=0.1)
+    exp_lr_scheduler = lr_scheduler.StepLR(opt, step_size=5, gamma=0.1)
     # 训练模型
     num_epochs = 20
     resNet_model = train_resNet(resnet, cri, opt, exp_lr_scheduler, num_epochs)
     # 保存模型
-    torch.save(resNet_model.state_dict(), "resnet_model.pt")
+    torch.save(resNet_model.state_dict(), "models/resnet_model.pt")

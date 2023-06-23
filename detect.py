@@ -92,12 +92,12 @@ def detect_face(image_path):
     with torch.no_grad():
         outputs = face_recognation(image_tensor)
         outputs = F.softmax(outputs, dim=1)
-        print('outputs:', outputs)
+        # print('outputs:', outputs)
         score, predicted = torch.max(outputs, 1)
-        print("score: ", score)
-        print("predicted: ", predicted)
+        # print("score: ", score)
+        # print("predicted: ", predicted)
 
-    if score.double() > 0.85:
+    if score.double() > 0.75:
         predicted_class = class_names[predicted[0]]
     else:
         predicted_class = 'UnKnown'

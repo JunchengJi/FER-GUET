@@ -16,7 +16,6 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPixmap, QIcon, QImage, QPainter, QBrush, QColor
 from PyQt5.QtWidgets import QFileDialog
 
-import SettingDialog
 import detect
 import setting
 from VideoThread import VideoThread
@@ -143,13 +142,11 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         mainWindow.close()
 
     def update_video_label(self, frame):
-        """Updates the video label with a new frame"""
-        # Convert the frame to RGB format and create a Qt image from it
-        # frame = frame[:, ::-1, :]  # 水平翻转，符合自拍习惯
         frame = frame.copy()
         # Convert the frame to RGB format and create a Qt image from it
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        # 获得图片 frame中所有的人脸位置
         faces = detect.face_detection.detectMultiScale(gray, 1.3, 5)
         # 对于所有发现的人脸
         emotion = None

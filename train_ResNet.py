@@ -20,7 +20,7 @@ data_transforms = {
         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
     ])
 }
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+device = torch.device("cpu")
 
 # 加载数据集
 image_datasets = {x: datasets.ImageFolder('dataset/' + x, data_transforms[x])
@@ -35,9 +35,10 @@ def train_resNet(model, criterion, optimizer, scheduler, epochs):
     best_acc = 0
 
     for epoch in range(epochs):
+        print('Epoch {}/{}'.format(epoch, num_epochs - 1))
+        print('-' * 10)
         for phase in ['train', 'test']:
             if phase == 'train':
-                scheduler.step()
                 model.train()
             else:
                 model.eval()
@@ -49,7 +50,6 @@ def train_resNet(model, criterion, optimizer, scheduler, epochs):
                 inputs = inputs.to(device)
                 labels = labels.to(device)
 
-                optimizer.zero_grad()
 
                 with torch.set_grad_enabled(phase == 'train'):  # 仅在train阶段启用梯度
                     outputs = model(inputs)
@@ -59,6 +59,8 @@ def train_resNet(model, criterion, optimizer, scheduler, epochs):
                     if phase == 'train':
                         loss.backward()
                         optimizer.step()
+                        scheduler.step()
+
 
                 running_loss += loss.item() * inputs.size(0)
                 running_corrects += torch.sum((preds == labels.data).int())
@@ -89,4 +91,4 @@ if __name__ == '__main__':
     num_epochs = 20
     resNet_model = train_resNet(resnet, cri, opt, exp_lr_scheduler, num_epochs)
     # 保存模型
-    torch.save(resNet_model.state_dict(), "models/resnet_model.pt")
+    torch.save(resNet_model.state_dict(), "models/resnet_model_cpu.pt")

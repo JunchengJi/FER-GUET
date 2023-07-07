@@ -57,7 +57,6 @@ def train_model(model, criterion, optimizer, scheduler, num_epochs):
         # 每个epoch有一个训练和验证阶段
         for phase in ['train', 'val']:
             if phase == 'train':
-                scheduler.step()
                 model.train()  # 设置模型为训练模式
             else:
                 model.eval()  # 设置模型为验证模式
@@ -84,6 +83,7 @@ def train_model(model, criterion, optimizer, scheduler, num_epochs):
                     if phase == 'train':
                         loss.backward()
                         optimizer.step()
+                        scheduler.step()
 
                 # 统计
                 running_loss += loss.item() * inputs.size(0)
